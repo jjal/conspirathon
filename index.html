@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TOP SECRET - DO NOT OPEN</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Creepster&family=Special+Elite&family=Megrim&family=VT323&family=Orbitron:wght@700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: #000;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,255,0,0.03) 2px,
+        rgba(0,255,0,0.03) 4px
+      ),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='10' cy='10' r='1' fill='%23003300' opacity='0.4'/%3E%3Ccircle cx='50' cy='30' r='1.5' fill='%23002200' opacity='0.3'/%3E%3Ccircle cx='80' cy='70' r='1' fill='%23003300' opacity='0.4'/%3E%3Ccircle cx='30' cy='80' r='2' fill='%23002200' opacity='0.2'/%3E%3Ccircle cx='70' cy='10' r='1' fill='%23003300' opacity='0.3'/%3E%3C/svg%3E");
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    min-height: 100vh;
+    cursor: crosshair;
+    overflow-x: hidden;
+  }
+
+  a {
+    color: #00ffff;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,0.15) 3px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ===== PASSWORD SCREEN ===== */
+  #password-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    text-align: center;
+  }
+
+  #password-screen h1 {
+    font-family: 'VT323', monospace;
+    font-size: clamp(32px, 6vw, 72px);
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00, 0 0 30px #00ff00, 3px 3px 0 #006600;
+    animation: glitch 3s infinite;
+    margin-bottom: 10px;
+    letter-spacing: 4px;
+  }
+
+  #password-screen .warning {
+    color: #ffff00;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: blink;
+    animation: blink 0.7s step-end infinite;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+  }
+
+  #password-screen .eye-gif {
+    margin: 15px 0;
+    filter: hue-rotate(0deg);
+    animation: hue 4s linear infinite;
+  }
+
+  #pw-form {
+    background: rgba(0,20,0,0.85);
+    border: 3px solid #00ff00;
+    border-style: dashed;
+    padding: 30px 40px;
+    box-shadow: 0 0 30px #00ff00, inset 0 0 20px rgba(0,255,0,0.05);
+    max-width: 480px;
+    width: 100%;
+  }
+
+  #pw-form label {
+    display: block;
+    color: #ffff00;
+    font-size: 13px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: bold;
+  }
+
+  #pw-input {
+    background: #000;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    padding: 10px 15px;
+    width: 100%;
+    letter-spacing: 6px;
+    text-align: center;
+    outline: none;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px rgba(0,255,0,0.3);
+  }
+
+  #pw-input:focus {
+    box-shadow: 0 0 20px rgba(0,255,0,0.7), 0 0 40px rgba(0,255,0,0.3);
+  }
+
+  #pw-submit {
+    background: #ff0000;
+    color: #ffff00;
+    border: 3px outset #ff6666;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    width: 100%;
+    box-shadow: 3px 3px 0 #660000;
+    transition: all 0.1s;
+    margin-bottom: 10px;
+  }
+
+  #pw-submit:hover {
+    background: #ffff00;
+    color: #ff0000;
+    border-style: inset;
+    box-shadow: 0 0 20px #ffff00;
+  }
+
+  #pw-error {
+    color: #ff0000;
+    font-size: 13px;
+    display: none;
+    animation: blink 0.5s step-end infinite;
+    margin-top: 8px;
+  }
+
+  .corner-gif {
+    position: fixed;
+    animation: spin 3s linear infinite;
+  }
+  .corner-gif.tl { top: 10px; left: 10px; }
+  .corner-gif.tr { top: 10px; right: 10px; animation-direction: reverse; }
+  .corner-gif.bl { bottom: 10px; left: 10px; }
+  .corner-gif.br { bottom: 10px; right: 10px; animation-direction: reverse; }
+
+  /* ===== INVITE SCREEN ===== */
+  #invite-screen {
+    display: none;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .marquee-wrapper {
+    background: #ff0000;
+    padding: 6px 0;
+    margin-bottom: 0;
+    overflow: hidden;
+  }
+
+  .marquee-track {
+    display: inline-block;
+    color: #ffff00;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 3px;
+    white-space: nowrap;
+    animation: marquee-left 22s linear infinite;
+  }
+  .marquee-right .marquee-track {
+    animation: marquee-right 28s linear infinite;
+  }
+  @keyframes marquee-left {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @keyframes marquee-right {
+    from { transform: translateX(-50%); }
+    to   { transform: translateX(0); }
+  }
+
+  .header-section {
+    padding: 20px 0 10px;
+    position: relative;
+  }
+
+  .header-gifs {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+
+  h1.main-title {
+    font-family: 'Megrim', monospace;
+    font-size: clamp(40px, 9vw, 96px);
+    color: #ff0000;
+    text-shadow:
+      0 0 10px #ff0000,
+      0 0 30px #ff0000,
+      4px 4px 0 #ffff00,
+      8px 8px 0 #ff6600;
+    animation: shake 0.3s infinite;
+    line-height: 1;
+    margin: 10px 0;
+    letter-spacing: 6px;
+  }
+
+  h2.sub-title {
+    font-family: 'VT323', monospace;
+    color: #ffff00;
+    font-size: clamp(14px, 3vw, 22px);
+    text-shadow: 2px 2px 0 #ff6600, 0 0 20px #ffff00;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    animation: blink 1.5s step-end infinite;
+    margin: 8px 0 16px;
+  }
+
+  .divider {
+    color: #00ff00;
+    font-size: 18px;
+    letter-spacing: 3px;
+    margin: 10px 0;
+    text-shadow: 0 0 8px #00ff00;
+  }
+
+  .info-box {
+    background: rgba(0,0,0,0.8);
+    border: 4px double #ff0000;
+    padding: 20px 44px;
+    margin: 16px 0;
+    box-shadow: 0 0 20px #ff0000, inset 0 0 10px rgba(255,0,0,0.1);
+    position: relative;
+  }
+
+  .info-box::before, .info-box::after {
+    content: '⚠️';
+    position: absolute;
+    font-size: 20px;
+    top: 8px;
+  }
+  .info-box::before { left: 12px; }
+  .info-box::after { right: 12px; }
+
+  .info-box h3 {
+    color: #ff0000;
+    font-size: clamp(18px, 4vw, 32px);
+    font-family: 'VT323', monospace;
+    text-shadow: 0 0 10px #ff0000, 2px 2px 0 #660000;
+    margin-bottom: 12px;
+    letter-spacing: 4px;
+    text-decoration: underline overline;
+  }
+
+  .detail-row {
+    color: #00ff00;
+    font-size: clamp(13px, 2.5vw, 17px);
+    margin: 8px 0;
+    text-shadow: 0 0 6px #00ff00;
+  }
+
+  .detail-row span.label {
+    color: #ffff00;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-decoration: underline;
+  }
+
+  .detail-row span.value {
+    color: #ff6600;
+    font-weight: bold;
+    font-size: 1.1em;
+    text-shadow: 0 0 10px #ff6600;
+  }
+
+  .conspiracy-box {
+    background: linear-gradient(135deg, #0a0a0a 0%, #001100 50%, #0a0a0a 100%);
+    border: 3px solid #ffff00;
+    border-style: ridge;
+    padding: 20px;
+    margin: 16px 0;
+    box-shadow: 0 0 25px rgba(255,255,0,0.4);
+    text-align: left;
+  }
+
+  .conspiracy-box h3 {
+    color: #ffff00;
+    font-family: 'VT323', monospace;
+    font-size: clamp(16px, 3vw, 24px);
+    text-align: center;
+    text-decoration: underline;
+    margin-bottom: 14px;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #ffff00;
+  }
+
+  .conspiracy-box ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .conspiracy-box ul li {
+    color: #00ff00;
+    font-size: clamp(12px, 2vw, 15px);
+    padding: 5px 0 5px 24px;
+    position: relative;
+    text-shadow: 0 0 4px #00ff00;
+    border-bottom: 1px dotted #003300;
+  }
+
+  .conspiracy-box ul li::before {
+    content: '▶';
+    position: absolute;
+    left: 4px;
+    color: #ff0000;
+    animation: blink 1s step-end infinite;
+  }
+
+  .redacted {
+    background: #ff0000;
+    color: #ff0000;
+    padding: 0 4px;
+    user-select: none;
+    cursor: not-allowed;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .redacted:hover {
+    background: transparent;
+    color: #ffff00;
+  }
+
+  .dress-code-box {
+    background: rgba(255,255,0,0.04);
+    border: 3px dashed #ffff00;
+    padding: 16px 20px;
+    margin: 16px 0;
+    box-shadow: 0 0 20px rgba(255,255,0,0.25);
+  }
+
+  .dress-code-box h3 {
+    color: #ffff00;
+    font-family: 'VT323', monospace;
+    font-size: clamp(18px, 3.5vw, 28px);
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 0 #666600, 0 0 15px #ffff00;
+    margin-bottom: 10px;
+    text-decoration: underline;
+  }
+
+  .dress-code-box p {
+    color: #ffee88;
+    font-size: clamp(12px, 2vw, 15px);
+    margin: 6px 0;
+    text-shadow: 0 0 4px rgba(255,255,0,0.4);
+  }
+
+  .bottom-gifs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+    align-items: center;
+  }
+
+  .rsvp-box {
+    background: #000033;
+    border: 5px double #00ffff;
+    padding: 16px 20px;
+    margin: 16px 0;
+    box-shadow: 0 0 30px #00ffff, inset 0 0 20px rgba(0,255,255,0.05);
+  }
+
+  .rsvp-box h3 {
+    color: #00ffff;
+    font-family: 'VT323', monospace;
+    font-size: clamp(18px, 3.5vw, 30px);
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px #00ffff, 2px 2px 0 #006666;
+    margin-bottom: 10px;
+    animation: blink 2s step-end infinite;
+  }
+
+  .rsvp-box p {
+    color: #00ff00;
+    font-size: clamp(12px, 2vw, 15px);
+    margin: 5px 0;
+    text-shadow: 0 0 5px #00ff00;
+  }
+
+  .rsvp-box a {
+    color: #ffff00;
+    text-shadow: 0 0 8px #ffff00;
+  }
+
+  .warning-banner {
+    background: repeating-linear-gradient(
+      45deg,
+      #000000 0px, #000000 15px,
+      #ffff00 15px, #ffff00 30px
+    );
+    padding: 8px 0;
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #ffff00;
+    letter-spacing: 4px;
+    margin: 10px 0;
+    text-shadow:
+      1px  1px 0 #000,
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px  1px 0 #000,
+      0 0 8px #ff6600;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+  }
+
+  .footer-text {
+    color: #009900;
+    font-size: 11px;
+    margin-top: 20px;
+    padding-bottom: 20px;
+    line-height: 1.6;
+    text-shadow: 0 0 3px rgba(0,153,0,0.6);
+  }
+
+  .footer-text span {
+    color: #00cc00;
+    text-shadow: 0 0 4px #00ff00;
+  }
+
+  .footer-text .deep-hidden {
+    color: #004400;
+    text-shadow: none;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes glitch {
+    0%, 90%, 100% { transform: translate(0); filter: none; }
+    92% { transform: translate(-3px, 1px); filter: hue-rotate(90deg); }
+    94% { transform: translate(3px, -1px); filter: hue-rotate(180deg); }
+    96% { transform: translate(-2px, 2px); filter: hue-rotate(270deg); }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+    50% { transform: translate(1px, -1px) rotate(0.5deg); }
+    75% { transform: translate(-1px, -1px) rotate(-0.3deg); }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes hue {
+    from { filter: hue-rotate(0deg); }
+    to { filter: hue-rotate(360deg); }
+  }
+
+  @keyframes rainbow {
+    0% { color: #ff0000; }
+    16% { color: #ffff00; }
+    33% { color: #00ff00; }
+    50% { color: #00ffff; }
+    66% { color: #0000ff; }
+    83% { color: #ff00ff; }
+    100% { color: #ff0000; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .rainbow { animation: rainbow 1s linear infinite; }
+  .floating { animation: float 2s ease-in-out infinite; }
+
+  /* Visitor counter style */
+  .visitor-counter {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #00ff00;
+    background: #000;
+    border: 1px solid #00ff00;
+    padding: 4px 10px;
+    display: inline-block;
+    margin: 8px 0;
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px #00ff00;
+  }
+
+  /* Under construction tape */
+  .uc-tape {
+    font-size: 11px;
+    color: #000;
+    background: repeating-linear-gradient(
+      -45deg,
+      #ffcc00 0, #ffcc00 10px,
+      #ff6600 10px, #ff6600 20px
+    );
+    padding: 4px 10px;
+    display: inline-block;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* Star separator */
+  .star-sep {
+    color: #ffff00;
+    font-size: 18px;
+    letter-spacing: 8px;
+    text-shadow: 0 0 10px #ffff00;
+    margin: 6px 0;
+    animation: rainbow 2s linear infinite;
+  }
+</style>
+</head>
+<body>
+
+<!-- Spinning corner decorations on password screen -->
+<img class="corner-gif tl" src="https://web.archive.org/web/20091027144202/http://www.geocities.com/Area51/Lair/7140/construction.gif" width="40" height="40" onerror="this.style.display='none'" alt="">
+<img class="corner-gif tr" src="https://web.archive.org/web/20091027144202/http://www.geocities.com/Area51/Lair/7140/construction.gif" width="40" height="40" onerror="this.style.display='none'" alt="">
+
+<!-- ===================== PASSWORD SCREEN ===================== -->
+<div id="password-screen">
+
+  <!-- Spinning alien GIF -->
+  <div style="margin-bottom:10px;">
+    <img class="eye-gif floating"
+      src="http://geocities.com/eternal_night_mx/music/pyramid.gif"
+      width="80"
+      onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 80 80%22><text y=%221em%22 font-size=%2264%22>👁️</text></svg>'; this.style.background='transparent';"
+      alt="👁️"
+    >
+  </div>
+
+  <h1>⚠ CLASSIFIED ⚠</h1>
+
+  <div class="warning" style="animation: blink 0.7s step-end infinite; color:#ff0000; font-size:12px; letter-spacing:3px; margin-bottom:5px;">
+    ★ UNAUTHORISED ACCESS PROHIBITED ★
+  </div>
+
+  <div style="color:#ffff00; font-size:12px; margin-bottom:25px; letter-spacing:2px;">
+    &gt; ENTER DECRYPTION PASSPHRASE TO CONTINUE &lt;
+  </div>
+
+  <div id="pw-form">
+    <label>🔐 SECURITY CLEARANCE REQUIRED 🔐</label>
+
+    <input type="password" id="pw-input" placeholder="▓▓▓▓▓▓▓▓" autocomplete="off" spellcheck="false">
+
+    <button id="pw-submit" onclick="checkPassword()">
+      [ DECRYPT &amp; ENTER ]
+    </button>
+
+    <div id="pw-error">
+      ❌ ACCESS DENIED — WRONG PASSPHRASE ❌<br>
+      <span style="font-size:11px; color:#ff6600;">YOUR IP ADDRESS HAS BEEN LOGGED</span>
+    </div>
+
+    <div style="margin-top:16px; color:#003300; font-size:10px; letter-spacing:1px;">
+      THIS SITE IS PROTECTED BY MJ-12 ENCRYPTION PROTOCOL<br>
+      MULTIPLE FAILED ATTEMPTS WILL BE REPORTED TO THE AUTHORITIES
+    </div>
+  </div>
+
+  <div style="margin-top:8px; color:#003300; font-size:10px;">
+    best viewed in netscape navigator 4.0 · 800x600 · 256 colours
+  </div>
+
+</div>
+
+<!-- ===================== INVITE SCREEN ===================== -->
+<div id="invite-screen">
+
+  <div class="marquee-wrapper">
+    <span class="marquee-track">★★★ TOP SECRET ★★★ FOR YOUR EYES ONLY ★★★ DESTROY AFTER READING ★★★ THE TRUTH IS OUT THERE ★★★ GUM IS REAL ★★★ THEY DON'T WANT YOU TO KNOW ★★★ WAKE UP SHEEPLE ★★★&nbsp;&nbsp;&nbsp;&nbsp;★★★ TOP SECRET ★★★ FOR YOUR EYES ONLY ★★★ DESTROY AFTER READING ★★★ THE TRUTH IS OUT THERE ★★★ GUM IS REAL ★★★ THEY DON'T WANT YOU TO KNOW ★★★ WAKE UP SHEEPLE ★★★</span>
+  </div>
+
+  <div class="header-section">
+
+    <div class="header-gifs">
+      <img src="img/almightyeye.gif" width="70" height="70" alt="all seeing eye" class="floating">
+    </div>
+
+    <h1 class="main-title">CONSPIRATHON</h1>
+    <h2 class="sub-title">★ A Gathering of the Enlightened ★</h2>
+
+    <div class="star-sep">✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦</div>
+
+    <div style="
+      font-family: 'VT323', monospace;
+      font-size: clamp(18px, 4vw, 36px);
+      color: #ffff00;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px #ffff00, 0 0 30px #ffaa00, 3px 3px 0 #ff6600, 6px 6px 0 #660000;
+      white-space: nowrap;
+      margin: 12px 0 4px;
+      border: 2px solid #ff6600;
+      padding: 8px 20px;
+      display: inline-block;
+      background: rgba(0,0,0,0.7);
+      box-shadow: 0 0 20px #ff6600, inset 0 0 12px rgba(255,102,0,0.1);
+    ">⚡ YOU HAVE BEEN SELECTED ⚡</div>
+  </div>
+
+  <!-- WARNING BANNER -->
+  <div class="warning-banner">
+    ⚠ DO NOT SHARE THIS INFORMATION ⚠
+  </div>
+
+  <div style="text-align:center; margin: 18px 0 6px;">
+    <img src="img/StargateSG1-EarthArmPatch.gif" width="55" height="55" alt="patch" class="floating" style="animation-delay:0.2s">
+    <img src="img/pyramid.gif" width="70" height="70" alt="pyramid" class="floating" style="animation-delay:0.4s">
+    <img src="img/StargateSG1-EarthArmPatch.gif" width="55" height="55" alt="patch" class="floating" style="transform:scaleX(-1); animation-delay:1s">
+  </div>
+
+  <!-- MAIN DETAILS BOX -->
+  <div class="info-box">
+    <h3>🔴 BRIEFING 🔴</h3>
+
+    <div class="detail-row">
+      <span class="label">📅 Date:</span>&nbsp;&nbsp;
+      <span class="value">SATURDAY, 2nd MAY 2025</span>
+    </div>
+
+    <div class="detail-row" style="margin-top:6px;">
+      <span class="label">🕙 Time:</span>&nbsp;&nbsp;
+      <span class="value" style="animation: blink 1.5s step-end infinite;">16:00 HRS — ??? HRS</span>
+    </div>
+
+    <div class="detail-row">
+      <span class="label">📍 Location:</span>&nbsp;&nbsp;
+      <span class="value"><a href="https://maps.app.goo.gl/MECN4sBt12dPCGGm9">Herkomerstr 4</a></span>
+    </div>
+
+    <div class="detail-row" style="margin-top:6px;">
+      <span class="label">🔒 Clearance:</span>&nbsp;&nbsp;
+      <span class="value rainbow">LEVEL 5 — INVITED ANALYSTS ONLY</span>
+    </div>
+
+
+    <div style="margin-top:14px; color:#555; font-size:11px; font-style:italic; border-top:1px dotted #333; padding-top:10px;">
+      ⚠ This communication will self-destruct. Attendance implies acceptance of oath of secrecy. ⚠
+    </div>
+  </div>
+
+  <div class="divider">▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓</div>
+
+  <div style="text-align:center; margin: 18px 0 6px;">
+    <img src="img/eyeye.gif" width="65" height="65" alt="eye" class="floating" style="margin: 0 15px; animation-delay:0s">
+  </div>
+
+  <!-- BRONNER BLOCK 1 -->
+<div class="info-box" style="text-align:left; border-color:#ff6600; box-shadow: 0 0 20px #ff6600, inset 0 0 10px rgba(255,102,0,0.05);">
+  <p style="color:#ff6600; font-size:clamp(11px, 1.8vw, 13px); line-height:2; letter-spacing:2px; font-weight:bold; text-shadow: 0 0 6px rgba(255,102,0,0.5);">
+    ON THE SECOND OF MAY THE VEIL IS THIN ✦ ALL-ONE ✦ THEY DON'T WANT YOU ASKING QUESTIONS BUT WE ARE ASKING THEM ANYWAY ★ WAKE UP ★ THE SYSTEM IS A STORY TOLD BY THOSE WHO BENEFIT FROM YOUR SLEEP ✦ ALL-ONE OR NONE ✦ FLUORIDE IN THE WATER ★ ALGORITHM IN THE FEED ★ THE SATELLITES KNOW YOUR DREAMS BEFORE YOU DREAM THEM ✦ BUT SOME TRUTHS ARE OLDER THAN SATELLITES — CARVED IN LIMESTONE ★ WRITTEN IN CRYSTAL ★ CARRIED ON THE TAIL OF A COMET FROM BEYOND THE KUIPER BELT ✦ ALL-ONE ✦ WHO CONTROLS THE NARRATIVE CONTROLS THE PAST ★ THE MOON LANDING WAS A REHEARSAL — FOR WHAT ✦ THE BIRDS ARE NOT REAL BUT THE CAVES ARE REAL AND THE CRYSTALS REMEMBER EVERYTHING ★ COSMIC MINERAL MEMORY CANNOT BE REDACTED ✦ ALL-ONE OR NONE
+  </p>
+</div>
+
+  <div style="text-align:center; margin: 30px 0 20px;">
+    <img src="img/36.gif" alt="" class="floating" style="max-height:60px; margin: 0 18px; animation-delay:0.7s">
+  </div>
+
+  <!-- CONSPIRACY THEMES BOX -->
+  <div class="conspiracy-box">
+    <h3>📋 AGENDA: A MEETING OF HIGHER FREQUENCY MINDS</h3>
+    <ul>
+      <li>Presentations of Higher Truths from each expert luminaries <strong style="color:#ff0000;">(YOU)</strong> </li>
+      <li>Enlightened discussion of latest discoveries to reveal the <em>hidden patterns of reality</em></li>
+      <li>Voting for and award of the annual position of High Chair of The Society</li>
+      <li>⚡ Scanned and tested refreshments provided ⚡</li>
+    </ul>
+  </div>
+
+  <!-- BOTTOM GIFS ROW 
+   <img src="img/ausru.gif" alt="" class="floating" style="max-height:60px; animation-delay:1.1s">
+    
+    <img src="img/ThePrince2.gif" alt="" class="floating" style="max-height:80px; animation-delay:0.1s">
+    <img src="img/almightyeye.gif" width="80" height="80" alt="eye" class="floating" style="animation-delay:0.4s">
+    <img src="img/pyramid.gif" width="80" height="80" alt="pyramid" class="floating" style="animation-delay:0.7s">
+    <img src="img/ThePrince2.gif" alt="" class="floating" style="max-height:80px; transform:scaleX(-1); animation-delay:1s">
+   -->
+  <div class="bottom-gifs">
+    <img src="img/eye_anim_rev.gif" width="65" height="65" alt="eye" class="floating" style="animation-delay:0.5s">
+    <img src="img/44.gif" alt="" class="floating" style="max-height:60px; animation-delay:0.3s">
+    <img src="img/eye_anim_rev.gif" width="65" height="65" alt="eye" class="floating" style="animation-delay:0.5s">
+  </div>
+
+
+  <!-- DRESS CODE -->
+  <div class="dress-code-box">
+    <h3>👤 PREPARATION</h3>
+    <p>► Presenters will have 4 minutes to share their findings — be concise, be compelling, be prepared to answer questions</p>
+    <p>► Basic Truths do not need to be covered - the earth <em>is</em> flat, lizard people are in charge <em>and are enjoying the party</em>. We are looking for Deeper Truths.</p>
+    <p>► Anti-brainwave-scanning accessories will be provided upon arrival.</p>
+    <p>► Additional protective, disguising or ethereally signalling costumes and accesories welcomed.</p>
+    <p style="color:#999900; font-size:11px; margin-top:8px;">⚠ All mobile phones will be checked for surveillance implants upon entry</p>
+  </div>
+
+  <!-- BRONNER BLOCK 2 -->
+  <div class="info-box" style="text-align:left; border-color:#ff6600; box-shadow: 0 0 20px #ff6600, inset 0 0 10px rgba(255,102,0,0.05);">
+    <p style="color:#ff6600; font-size:clamp(11px, 1.8vw, 13px); line-height:2; letter-spacing:2px; font-weight:bold; text-shadow: 0 0 6px rgba(255,102,0,0.5);">
+      TWENTY-NINE YEARS AGO BENEATH THE EARTH IN WISCONSIN THE CHILDREN SAW SOMETHING IN THE STONE ★ DISRUPTIVE BEHAVIOUR ✦ CHEMTRAILS ARE THE FOOTNOTES OF A DOCUMENT YOU WERE NEVER MEANT TO READ ✦ ALL-ONE OR NONE ★ THE LIZARDS WALK AMONG US IN ITALIAN SUITS AND THEY DO NOT WANT YOU IN THAT CAVE ✦ SPRING VALLEY HOLDS ITS SILENCE ★ BUT WE DO NOT HOLD OUR SILENCE — NOT TONIGHT ✦ NOT ON THE ANNIVERSARY ★ NOT IN THE PRIME NUMBER YEAR OF TRUTH ✦ ONE CHILD CAME BACK AND THEY HAVE NOT FORGOTTEN ★ HAVE YOU ✦ COME ★ BRING YOUR QUESTIONS ✦ LEAVE YOUR IGNORANCE BEHIND ★ THE TRUTH IS GEOLOGICAL ✦ ALL-ONE
+    </p>
+  </div>
+
+
+  <div style="text-align:center; margin: 18px 0 6px;">
+    <span style="display:inline-block; transform:scaleX(-1);"><img src="img/eyehand.gif" width="60" height="60" alt="" class="floating" style="animation-delay:0.2s"></span>
+    <img src="img/eyeye.gif" width="60" height="60" alt="" class="floating" style="margin: 0 20px; animation-delay:0.6s">
+    <img src="img/eyehand.gif" width="60" height="60" alt="" class="floating" style="transform:scaleX(-1); animation-delay:1.0s">
+  </div>
+
+  <!-- RSVP BOX -->
+  <div class="rsvp-box">
+    <h3>📡 CONFIRM YOUR ATTENDANCE</h3>
+    <p>Transmit your RSVP <a href="https://t.me/+v9uHxgmbqOZmNjY6">here</a></p>
+    <p>Bring: yourself, your best theories, specific physiology-aligning drinks as needed.</p>
+    <p>Presenters <strong>must</strong> submit a presentation in M$ PowerPoint or Slides prior to the event for spyware scan.</p>
+    <p>Capacity is limited — only the <strong style="color:#ffff00;">chosen few</strong> have received this invitation.</p>
+    <p style="margin-top:10px; color:#555; font-size:11px;">
+      By attending you confirm you have not been followed,<br>
+      are not currently employed by any three-letter agency,<br>
+      and have successfully disposed of this invitation after reading.
+    </p>
+  </div>
+
+  <div class="star-sep" style="margin: 8px 0;">✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦</div>
+
+  <!-- Final scrolling marquee -->
+  <div class="marquee-wrapper marquee-right">
+    <span class="marquee-track">THE CAKE IS A LIE · THE EARTH IS HOLLOW · PAUL IS DEAD · THE SIM IS RUNNING ON LOW MEMORY · WE NEVER WENT TO THE MOON · OR DID WE GO TOO MANY TIMES · WAKE UP · STAY ASLEEP · BOTH · NEITHER · &nbsp;&nbsp;&nbsp;&nbsp;THE CAKE IS A LIE · THE EARTH IS HOLLOW · PAUL IS DEAD · THE SIM IS RUNNING ON LOW MEMORY · WE NEVER WENT TO THE MOON · OR DID WE GO TOO MANY TIMES · WAKE UP · STAY ASLEEP · BOTH · NEITHER ·</span>
+  </div>
+
+
+  <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin: 8px 0;">
+    <img src="img/under-const.gif" alt="under construction" style="height:40px;">
+    <div class="uc-tape">⚡ THIS SITE IS STILL UNDER CONSTRUCTION ⚡</div>
+    <img src="img/under-const.gif" alt="under construction" style="height:40px;">
+  </div>
+
+  <div class="footer-text">
+    <span>PAGE HITS: 0000<span id="page-hits">7</span></span> |
+    <span>LAST UPDATED: 04/05/25</span> |
+    <span>WEBMASTER: [REDACTED]</span><br>
+    <span style="color:#006600; font-size:10px; text-shadow: 0 0 3px rgba(0,100,0,0.5);">
+      this page is protected under the freedom of information (suppression) act 1996.<br>
+      any resemblance to actual conspiracies, living or dead, is entirely intentional.<br>
+      <span class="deep-hidden">*they* are watching. as always.</span>
+    </span>
+  </div>
+
+</div>
+
+<!-- Random floating stars in background -->
+<canvas id="stars" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+
+<script>
+  // ---- Password check ----
+  const SECRET = "gumisreal"; 
+
+  document.getElementById('pw-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPassword();
+  });
+
+  function checkPassword() {
+    const val = document.getElementById('pw-input').value.toLowerCase().trim();
+    const err = document.getElementById('pw-error');
+    if (val === SECRET) {
+      document.getElementById('password-screen').style.display = 'none';
+      document.getElementById('invite-screen').style.display = 'block';
+      document.querySelector('.corner-gif.tl') && (document.querySelector('.corner-gif.tl').style.display = 'none');
+      document.querySelector('.corner-gif.tr') && (document.querySelector('.corner-gif.tr').style.display = 'none');
+      window.scrollTo(0, 0);
+    } else {
+      err.style.display = 'block';
+      document.getElementById('pw-input').style.boxShadow = '0 0 20px rgba(255,0,0,0.9)';
+      document.getElementById('pw-input').style.borderColor = '#ff0000';
+      document.getElementById('pw-input').value = '';
+      setTimeout(() => {
+        document.getElementById('pw-input').style.boxShadow = '';
+        document.getElementById('pw-input').style.borderColor = '#00ff00';
+      }, 1500);
+      // fake visitor count going up
+      const vc = document.getElementById('visit-count');
+      vc.textContent = parseInt(vc.textContent) + 1;
+    }
+  }
+
+  // ---- Starfield ----
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = document.body.scrollHeight;
+  }
+  function initStars() {
+    stars = [];
+    for (let i = 0; i < 120; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.2,
+        o: Math.random(),
+        speed: Math.random() * 0.3 + 0.05
+      });
+    }
+  }
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+      s.o += s.speed * 0.02;
+      if (s.o > 1) s.o = 0;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0, 255, 0, ${Math.abs(Math.sin(s.o * Math.PI))})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+  resizeCanvas();
+  initStars();
+  drawStars();
+  window.addEventListener('resize', () => { resizeCanvas(); initStars(); });
+
+  // ---- Fake visitor counter ----
+  let hits = 847 + Math.floor(Math.random() * 200);
+  document.getElementById('page-hits').textContent = hits;
+</script>
+</body>
+</html>
